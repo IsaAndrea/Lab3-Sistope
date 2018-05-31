@@ -15,9 +15,8 @@
     proceso leerImagen, mientras el padre lo espera. 
 */
 int main(int argc,char **argv){
-    int c, cantidadImagenes,largo, UMBRAL, UMBRAL_clasificacion;
+    int c, cantidadImagenes,largo, UMBRAL, UMBRAL_clasificacion, cantidadHebras;
     int bflag = 0;
-    //int tuberia[2];
     int status;
     pid_t pid;
     char *archivoEntrada, *archivoBinario; 
@@ -26,7 +25,7 @@ int main(int argc,char **argv){
     char *data3 = (char*)malloc(16 * sizeof(char));
     char *data4 = (char*)malloc(16 * sizeof(char));
     opterr = 0;
-    while((c = getopt(argc,argv,"c:u:n:b")) != -1)
+    while((c = getopt(argc,argv,"c:h:u:n:b")) != -1)
         switch(c){
             case 'c':
                 sscanf(optarg,"%d",&cantidadImagenes);
@@ -34,8 +33,10 @@ int main(int argc,char **argv){
                 archivoEntrada = malloc(largo + 11);
                 archivoBinario = malloc(largo + 27);
                 break;
+            case 'h':
+                sscanf(optarg,"%d",&cantidadHebras);
+                break;
             case 'u':
-                
                 sscanf(optarg,"%d",&UMBRAL);
                 break;
             case 'n':
