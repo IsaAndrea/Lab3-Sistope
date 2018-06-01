@@ -66,15 +66,6 @@ unsigned char *transformarAGrises(cabeceraInformacion *binformacion, unsigned ch
     unsigned char azul, verde, rojo, extra, *grisaseos;
     grisaseos = (unsigned char *)malloc(binformacion -> tamanoImagen * sizeof(unsigned char));
 
-    if(cantidadBits == 3){
-        for(filas = 0; filas < binformacion -> tamanoImagen; filas = filas + 3){
-            colorGrisaseo = data_imagen[filas+2] * 0.3 + data_imagen[filas+1] * 0.59 + data_imagen[filas] * 0.11;
-            grisaseos[filas+2] = colorGrisaseo;
-            grisaseos[filas+1] = colorGrisaseo;
-            grisaseos[filas] = colorGrisaseo;
-        }
-    }
-
     if(cantidadBits == 4){
             for(filas = 0; filas <binformacion -> tamanoImagen; filas = filas + 4){
             colorGrisaseo = data_imagen[filas+2] * 0.3 + data_imagen[filas+1] * 0.59 + data_imagen[filas] * 0.11;
@@ -107,24 +98,6 @@ unsigned char *binarizarImagen(cabeceraInformacion *binformacion, unsigned char 
     int filas = 0;
     unsigned char data, *binariosColor;
     binariosColor = (unsigned char *)malloc(binformacion -> tamanoImagen * sizeof(unsigned char));
-
-    if(binformacion -> totalBit != 32){
-        for(filas = 0; filas < binformacion -> tamanoImagen; filas = filas + 3){
-            if(data_grisaseo[filas] > UMBRAL){
-                binariosColor[filas+2] = 255; 
-                binariosColor[filas +1] = 255;
-                binariosColor[filas] = 255;
-                contadorNegros++;
-            }
-
-            else{
-                binariosColor[filas+ 2] = 0; 
-                binariosColor[filas + 1] = 0;
-                binariosColor[filas] = 0;
-                contadorBlancos++;
-            }
-        }
-    }
 
     if(binformacion -> totalBit == 32){
         for(filas = 0; filas < binformacion -> tamanoImagen; filas = filas + 4){
