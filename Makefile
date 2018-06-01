@@ -1,24 +1,19 @@
-compile:
-	gcc -o  main main.c -Wall
-	gcc -o lectorImagen lectorImagen.c -Wall
-	gcc -o conversorGris conversorGris.c -Wall
-	gcc -o binarizarImagen binarizadorImagen.c -Wall
-	gcc -o analisisPropiedad analizadorPropiedad.c -Wall
-	gcc -o crearImagen creadorImagen.c -Wall
+procesarImagen: nearlyBlack.c main.c
+	gcc -o procesarImagen nearlyBlack.c main.c -lm -g 
 	@echo ".exe creado con exito"
 	@echo "         7ZZZZZZZZZZZZZZZZ.  "
 	@echo "      ...OZZZZZZZZZZZZZZZZ...........  "
 	@echo "      ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ.  "
 	@echo "      ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ.  "
 	@echo "      8888888888IIIIIII888III~   "
-	@echo "   ...888D888888IIIIIII888III?.......              ------------------------------------------------------------------------------------------------"
-	@echo "   888IIIO888IIIIIIIIII888IIIIIIIIII.            -                                                                                                 |"
-	@echo "   888IIIO888IIIIIIIIII888IIIIIIIIII.           -     Para Ejecutarlo solo escribe en la cosola:                                                   |"
-	@echo "   888IIIO888888IIIIIIIIII888OIIIIIIIIII  ------  ./main -c numero de imagenes -u umbral -n umbral clasificacion -b es un parametroOpcional        |"
-	@echo "   888IIIO888888IIIIIIIIII888OIIIIIIIIII  ------                                                                                                   |"
-	@echo "   888888IIIIIIIIIIIIII8888888888888.           -                                                                                                  |"
-	@echo "   888888IIIIIIIIIIIIII8888888888888.            -                                                 let's GO!                                       |"
-	@echo "         IIIIIIIIIIIIIIIIIIIIIIII.                -------------------------------------------------------------------------------------------------"
+	@echo "   ...888D888888IIIIIII888III?.......              ----------------------------------------------------------------------------------"
+	@echo "   888IIIO888IIIIIIIIII888IIIIIIIIII.            -                                                                                   |"
+	@echo "   888IIIO888IIIIIIIIII888IIIIIIIIII.           -     Para Ejecutarlo solo escribe en la cosola:                                     |"
+	@echo "   888IIIO888888IIIIIIIIII888OIIIIIIIIII  ------  ./procesarImagen -c parametro1 -u parametro2 -n parametro3 -b es parametroOpcional |"
+	@echo "   888IIIO888888IIIIIIIIII888OIIIIIIIIII  ------                                                                                     |"
+	@echo "   888888IIIIIIIIIIIIII8888888888888.           -                                                                                    |"
+	@echo "   888888IIIIIIIIIIIIII8888888888888.            -                                                 let's GO!                         |"
+	@echo "         IIIIIIIIIIIIIIIIIIIIIIII.                -----------------------------------------------------------------------------------"
 	@echo "         =IIIIIIIIIIIIIIIIIIIIIII.  "
 	@echo "      ZZZZZZZyyyBZZZZZZZZZZ....... "
 	@echo "      ZZZZZZZyyyBZZZZZZZZZZ. "
@@ -40,7 +35,3 @@ compile:
 	@echo "8888888888888             88888888888888 "
 	@echo "8888888888888             88888888888888 "
 	@echo "8888888888888             88888888888888 "
-	@echo ""
-	@echo ""
-	@echo "AGRANDAR PARA VER MEJOR EL ELEMENTO! "
-

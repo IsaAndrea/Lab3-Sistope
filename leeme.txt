@@ -1,0 +1,3 @@
+Luego de ubicarse en la carpeta "18977642k_188821294", los pasos para compilar el programa son:
+> make
+> ./procesarImagen
