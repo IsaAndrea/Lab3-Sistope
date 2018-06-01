@@ -31,8 +31,6 @@ typedef struct BITMAPTOTAL{
 
 
 unsigned char *leerImagenBMP(char *nombreArchivo, cabeceraInformacion *binformacion, cabeceraArchivo *bcabecera);
-void mostrarInformacionCabecera(cabeceraInformacion *info);
-void mostrarCabeceraArchivo(cabeceraArchivo *info);
 unsigned char *transformarAGrises(cabeceraInformacion *binformacion, unsigned char *data_imagen);
 unsigned char *binarizarImagen(cabeceraInformacion *binformacion, unsigned char *data_grisaseo, int UMBRAL, bitmaptotal *total_pixel);
 void verificarNearlyBlack(bitmaptotal *totalPixeles, int UMBRAL, int numeroImagen);

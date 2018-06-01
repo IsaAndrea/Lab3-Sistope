@@ -124,7 +124,7 @@ int main(int argc,char **argv){
 
     while(cantidadImagenes > 0 && UMBRAL > 0 && UMBRAL_clasificacion > 0 ){
         sprintf(archivoEntrada,"imagen_%d.bmp",cantidadImagenes);
-        sprintf(archivoBinario,"archivo_binario_%d.bmp",cantidadImagenes);
+        sprintf(archivoBinario,"binario_%d.bmp",cantidadImagenes);
         data_imagen = leerImagenBMP(archivoEntrada, &binformacion, &bcabecera);
         if(data_imagen != NULL){
             if(binformacion.totalBit == 32){
@@ -135,14 +135,6 @@ int main(int argc,char **argv){
                 verificarNearlyBlack(&totalPixel, UMBRAL_clasificacion, cantidadImagenes);
                 }
             }
-            else{
-                grisaseos = transformarAGrises(&binformacion, data_imagen);
-                binariosColor = binarizarImagen(&binformacion, data_imagen, UMBRAL, &totalPixel);
-                crearImagen(&binformacion, &bcabecera, archivoBinario, binariosColor);
-                if(bflag == 1){
-                    verificarNearlyBlack(&totalPixel, UMBRAL_clasificacion, cantidadImagenes);
-                }
-            }
             free(binariosColor);
             free(data_imagen);
             free(grisaseos);
@@ -151,3 +143,4 @@ int main(int argc,char **argv){
     }
     
 }
+
