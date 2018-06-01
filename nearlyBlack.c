@@ -231,7 +231,7 @@ void crearImagen(cabeceraInformacion *binformacion, cabeceraArchivo *bcarchivo_g
         - Nombre de la imagen a procesar. 
         - Nombre del archivo grisaseo.
         - Nombre del archivo binario.
-*/
+
 void procesarImagenes(int cantidadImagenes, int UMBRAL, int UMBRAL_clasificacion, int bflag, char *archivoEntrada, char *archivoBinario){
     int filas, i, j, verificador;
     unsigned char *data_imagen, *grisaseos, *binariosColor;
@@ -263,6 +263,6 @@ void procesarImagenes(int cantidadImagenes, int UMBRAL, int UMBRAL_clasificacion
         free(grisaseos);
         cantidadImagenes -= 1;
     }    
-}
+}*/
 
 
