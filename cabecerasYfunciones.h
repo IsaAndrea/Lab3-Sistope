@@ -30,9 +30,33 @@ typedef struct BITMAPTOTAL{
 }bitmaptotal;
 
 
-unsigned char *leerImagenBMP(char *nombreArchivo, cabeceraInformacion *binformacion, cabeceraArchivo *bcabecera);
-unsigned char *transformarAGrises(cabeceraInformacion *binformacion, unsigned char *data_imagen);
-unsigned char *binarizarImagen(cabeceraInformacion *binformacion, unsigned char *data_grisaseo, int UMBRAL, bitmaptotal *total_pixel);
-void verificarNearlyBlack(bitmaptotal *totalPixeles, int UMBRAL, int numeroImagen);
-void crearImagen(cabeceraInformacion *binformacion, cabeceraArchivo *bcarchivo_guardado, char *Nombre_archivo_salida, unsigned char *data_imagen);
+// Estructura que almacena estructuras de imagen
+typedef struct INFOIMAGEN{
+    struct      	BITMAPCABECERAARCHIVO      	cabArch;
+    struct 			BITMAPINFORMACIONCABECERA  	cabInfo;
+    struct      	BITMAPTOTAL  			   	bitMT;  
+    int 			UMBRAL;
+    int 			UMBRAL_clasificacion;
+    unsigned char 	*data_imagen; 
+    unsigned char 	*grisaseos; 
+    unsigned char 	*binariosColor;
+    char 			*archivoEntrada;
+    char			*archivoBinario; 
+    int 			nImagen;
+}parametrosHebra;           
+
+
+
+
+
+//unsigned char *leerImagenBMP(char *nombreArchivo, cabeceraInformacion *binformacion, cabeceraArchivo *bcabecera);
+void leerImagenBMP(parametrosHebra *parametros);
+//unsigned char *transformarAGrises(cabeceraInformacion *binformacion, unsigned char *data_imagen);
+void transformarAGrises(parametrosHebra *parametros);
+//unsigned char *binarizarImagen(cabeceraInformacion *binformacion, unsigned char *data_grisaseo, int UMBRAL, bitmaptotal *total_pixel);
+void binarizarImagen(parametrosHebra *parametros);
+//void verificarNearlyBlack(bitmaptotal *totalPixeles, int UMBRAL, int numeroImagen);
+void verificarNearlyBlack(parametrosHebra *parametros);
+//void crearImagen(cabeceraInformacion *binformacion, cabeceraArchivo *bcarchivo_guardado, char *Nombre_archivo_salida, unsigned char *data_imagen);
+void crearImagen(parametrosHebra *parametros);
 //void procesarImagenes(int cantidadImagenes, int UMBRAL, int UMBRAL_clasificacion, int bflag, char *archivoEntrada, char *archivoBinario);

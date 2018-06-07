@@ -4,7 +4,10 @@
 #include <ctype.h>
 #include <stdint.h>
 #include <unistd.h>
+#include <pthread.h>
 #include "cabecerasYfunciones.h"
+
+
 
 
 /*Función que permite retornar una imagen leida en bit almacenada en una variable data_imagen
@@ -16,38 +19,37 @@
   SALIDA:
         - Un arreglo de char de una imagen leida
 */
-unsigned char *leerImagenBMP(char *nombreArchivo, cabeceraInformacion *binformacion, cabeceraArchivo *bcabecera){
+void leerImagenBMP(parametrosHebra *parametros){
     FILE *archivo;
     uint16_t type;
-    unsigned char *data_procesada;
+    char *nombreArchivo = parametros -> archivoEntrada;
     archivo = fopen(nombreArchivo , "r");
     if(!archivo){
-        return NULL;
+        printf(" No se pudo leer el archivo \n");
     }
     else{
         fread(&type, sizeof(uint16_t), 1, archivo);
         if(type != 0x4D42){
             printf("La imagen no es de tipo bmp");
             fclose(archivo);
-            return NULL;
         }
 
-        fread(bcabecera, sizeof(cabeceraArchivo), 1, archivo);
-        fread(binformacion, sizeof(cabeceraInformacion), 1, archivo);
+        fread(&parametros -> cabArch, sizeof(cabeceraArchivo), 1, archivo);
+        fread(&parametros -> cabInfo, sizeof(cabeceraInformacion), 1, archivo);
          
-        data_procesada = (unsigned char*)malloc(binformacion -> tamanoImagen* sizeof(unsigned char));
-        if(!data_procesada){
+        parametros -> data_imagen = (unsigned char*)malloc(parametros -> cabInfo.tamanoImagen* sizeof(unsigned char));
+        if(!parametros -> data_imagen){
+            printf(" No se pudo guardar la imagen, intente nuevamente \n");
             fclose(archivo);
-            return 0;
         }
 
         else{
-            fseek(archivo, bcabecera -> offsetBit, SEEK_SET);
-            fread(data_procesada, binformacion -> tamanoImagen, 1, archivo);  
+            fseek(archivo, parametros -> cabArch.offsetBit, SEEK_SET);
+            fread(parametros -> data_imagen, parametros -> cabInfo.tamanoImagen, 1, archivo);  
             fclose(archivo);
-            return data_procesada;
         }
     }
+    
 }
 
 
@@ -60,23 +62,20 @@ unsigned char *leerImagenBMP(char *nombreArchivo, cabeceraInformacion *binformac
    SALIDA:
         - Una matriz de pixeles checkeados.
 */
-unsigned char *transformarAGrises(cabeceraInformacion *binformacion, unsigned char *data_imagen){
+void transformarAGrises(parametrosHebra *parametros){
     int filas, colorGrisaseo;
-    int cantidadBits = binformacion -> totalBit/8;
-    unsigned char azul, verde, rojo, extra, *grisaseos;
-    grisaseos = (unsigned char *)malloc(binformacion -> tamanoImagen * sizeof(unsigned char));
+    int cantidadBits = parametros -> cabInfo.totalBit/8;
+    parametros -> grisaseos = (unsigned char *)malloc(parametros -> cabInfo.tamanoImagen * sizeof(unsigned char));
 
     if(cantidadBits == 4){
-            for(filas = 0; filas <binformacion -> tamanoImagen; filas = filas + 4){
-            colorGrisaseo = data_imagen[filas+2] * 0.3 + data_imagen[filas+1] * 0.59 + data_imagen[filas] * 0.11;
-            grisaseos[filas+3] = 255;
-            grisaseos[filas+2] = colorGrisaseo;
-            grisaseos[filas+1] = colorGrisaseo;
-            grisaseos[filas] = colorGrisaseo;
+        for(filas = 0; filas < (parametros -> cabInfo.tamanoImagen); filas = filas + 4){
+            colorGrisaseo = (parametros -> data_imagen[filas+2]) * 0.3 + (parametros -> data_imagen[filas+1]) * 0.59 + (parametros -> data_imagen[filas]) * 0.11;
+            parametros -> grisaseos[filas+3] = 255;
+            parametros -> grisaseos[filas+2] = colorGrisaseo;
+            parametros -> grisaseos[filas+1] = colorGrisaseo;
+            parametros -> grisaseos[filas] = colorGrisaseo;
         }
     }
-
-    return grisaseos;
 }
 
 
@@ -90,38 +89,36 @@ unsigned char *transformarAGrises(cabeceraInformacion *binformacion, unsigned ch
    SALIDA:
         - Una matriz de pixeles binarizados.
 */
-unsigned char *binarizarImagen(cabeceraInformacion *binformacion, unsigned char *data_grisaseo, int UMBRAL, bitmaptotal *totalPixel){
+void binarizarImagen(parametrosHebra *parametros){
     int columnas;
     int contadorTotal = 0;
     int contadorNegros = 0;
     int contadorBlancos = 0;
     int filas = 0;
-    unsigned char data, *binariosColor;
-    binariosColor = (unsigned char *)malloc(binformacion -> tamanoImagen * sizeof(unsigned char));
+    parametros -> binariosColor = (unsigned char *)malloc(parametros -> cabInfo.tamanoImagen * sizeof(unsigned char));
 
-    if(binformacion -> totalBit == 32){
-        for(filas = 0; filas < binformacion -> tamanoImagen; filas = filas + 4){
-            if(data_grisaseo[filas] > UMBRAL){
-                binariosColor[filas+3] = 255; 
-                binariosColor[filas + 2] = 255;
-                binariosColor[filas+ 1] = 255;
-                binariosColor[filas] = 255;
+    if(parametros -> cabInfo.totalBit == 32){
+        for(filas = 0; filas < (parametros -> cabInfo.tamanoImagen); filas = filas + 4){
+            if((parametros -> grisaseos[filas]) > (parametros -> UMBRAL)){
+                parametros -> binariosColor[filas+3] = 255; 
+                parametros -> binariosColor[filas + 2] = 255;
+                parametros -> binariosColor[filas+ 1] = 255;
+                parametros -> binariosColor[filas] = 255;
                 contadorBlancos++;
             }
 
             else{
-                binariosColor[filas+3] = 255; 
-                binariosColor[filas + 2] = 0;
-                binariosColor[filas+ 1] = 0;
-                binariosColor[filas] = 0;
+                parametros -> binariosColor[filas+3] = 255; 
+                parametros -> binariosColor[filas + 2] = 0;
+                parametros -> binariosColor[filas+ 1] = 0;
+                parametros -> binariosColor[filas] = 0;
                 contadorNegros++;
             }
         }
     }
 
-    totalPixel -> totalBlancos = contadorBlancos;
-    totalPixel -> totalNegros = contadorNegros; 
-    return binariosColor;
+    parametros -> bitMT.totalBlancos = contadorBlancos;
+    parametros -> bitMT.totalNegros = contadorNegros; 
 }
 
 
@@ -132,21 +129,21 @@ unsigned char *binarizarImagen(cabeceraInformacion *binformacion, unsigned char 
         - Total de pixeles de la imagen.
         - Un entero que corresponde al umbral definido.
 */
-void verificarNearlyBlack(bitmaptotal *totalPixeles, int UMBRAL, int numeroImagen){
-    float negros = totalPixeles -> totalNegros;
-    float todos = totalPixeles -> totalBlancos + totalPixeles -> totalNegros;
+void verificarNearlyBlack(parametrosHebra *parametros){
+    float negros = parametros -> bitMT.totalNegros;
+    float todos = (parametros -> bitMT.totalBlancos) + (parametros -> bitMT.totalNegros);
     int porcentaje = (negros/todos)*100;
-    totalPixeles -> porcentaje = porcentaje;
+    parametros -> bitMT.porcentaje = porcentaje;
 
-    if(porcentaje > UMBRAL){
+    if(porcentaje > (parametros -> UMBRAL)){
         printf("---------------------------------------------------------------\n");
-        printf("  Imagen %d: Nearly Black Positivo, con %d %% de pixeles negros \n", numeroImagen, porcentaje);
+        printf("  Imagen %d: Nearly Black Positivo, con %d %% de pixeles negros \n", parametros -> nImagen, porcentaje);
         printf("---------------------------------------------------------------\n");
         printf("\n"); 
     }
     else{
         printf("----------------------------------------------------------------\n");
-        printf("  Imagen %d: Nearly Black Negativo, con %d %% de pixeles negros  \n", numeroImagen, porcentaje);
+        printf("  Imagen %d: Nearly Black Negativo, con %d %% de pixeles negros  \n", parametros -> nImagen, porcentaje);
         printf("----------------------------------------------------------------\n");
         printf("\n");
     }
@@ -161,37 +158,42 @@ void verificarNearlyBlack(bitmaptotal *totalPixeles, int UMBRAL, int numeroImage
         - Un nombre que corresponde al archivo de salida.
         - Un arreglo de pixeles.
 */
-void crearImagen(cabeceraInformacion *binformacion, cabeceraArchivo *bcarchivo_guardado, char *Nombre_archivo_salida, unsigned char *data_imagen){
+void crearImagen(parametrosHebra *parametros){
     FILE *archivo;  
     uint16_t type;
+    char *nombreArchivo = parametros -> archivoBinario;
+    archivo = fopen(nombreArchivo, "wb" );
 
-    archivo = fopen(Nombre_archivo_salida, "wb" );
     if(!archivo){ 
         printf( "La imagen no se pudo crear\n");
         exit(1);
     }
-    binformacion -> compresion = 0;
+
+    parametros -> cabInfo.compresion = 0;
     type=0x4D42;
+
     fwrite(&type,sizeof(uint16_t),1,archivo);
-    fwrite(&bcarchivo_guardado -> tamano, 4, 1, archivo);
-    fwrite(&bcarchivo_guardado -> reservado1, 2, 1, archivo);
-    fwrite(&bcarchivo_guardado -> reservado2, 2, 1, archivo);
-    fwrite(&bcarchivo_guardado -> offsetBit, 4, 1, archivo);
-    fwrite(&binformacion -> tamano, 4, 1, archivo);
-    fwrite(&binformacion -> alto, 4, 1, archivo);
-    fwrite(&binformacion -> ancho, 4, 1, archivo);
-    fwrite(&binformacion -> direcciones, 2, 1, archivo);
-    fwrite(&binformacion -> totalBit, 2, 1, archivo);
-    fwrite(&binformacion -> compresion, 4, 1, archivo);
-    fwrite(&binformacion -> tamanoImagen, 4, 1, archivo);
-    fwrite(&binformacion -> XResolporMetros, 4, 1, archivo);
-    fwrite(&binformacion -> YResolporMetros,4, 1, archivo);
-    fwrite(&binformacion -> colorPixel, 4, 1, archivo);
-    fwrite(&binformacion -> coloresImportantes, 4, 1, archivo);
-    fseek(archivo,bcarchivo_guardado -> offsetBit, SEEK_SET);
-    fwrite(data_imagen, binformacion -> tamanoImagen, 1, archivo);
+    fwrite(&parametros -> cabArch.tamano, 4, 1, archivo);
+    fwrite(&parametros -> cabArch.reservado1, 2, 1, archivo);
+    fwrite(&parametros -> cabArch.reservado2, 2, 1, archivo);
+    fwrite(&parametros -> cabArch.offsetBit, 4, 1, archivo);
+    fwrite(&parametros -> cabInfo.tamano, 4, 1, archivo);
+    fwrite(&parametros -> cabInfo.alto, 4, 1, archivo);
+    fwrite(&parametros -> cabInfo.ancho, 4, 1, archivo);
+    fwrite(&parametros -> cabInfo.direcciones, 2, 1, archivo);
+    fwrite(&parametros -> cabInfo.totalBit, 2, 1, archivo);
+    fwrite(&parametros -> cabInfo.compresion, 4, 1, archivo);
+    fwrite(&parametros -> cabInfo.tamanoImagen, 4, 1, archivo);
+    fwrite(&parametros -> cabInfo.XResolporMetros, 4, 1, archivo);
+    fwrite(&parametros -> cabInfo.YResolporMetros,4, 1, archivo);
+    fwrite(&parametros -> cabInfo.colorPixel, 4, 1, archivo);
+    fwrite(&parametros -> cabInfo.coloresImportantes, 4, 1, archivo);
+    fseek(archivo,parametros -> cabArch.offsetBit, SEEK_SET);
+    fwrite(parametros -> binariosColor, parametros -> cabInfo.tamanoImagen, 1, archivo);
     fclose(archivo);
 }
+
+
 
 
 

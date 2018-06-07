@@ -4,6 +4,7 @@
 #include <ctype.h> 
 #include <stdint.h>
 #include <unistd.h>
+#include <pthread.h>
 #include "cabecerasYfunciones.h"
 
 /*
@@ -68,14 +69,14 @@ int main(int argc,char **argv){
     proceso leerImagen, mientras el padre lo espera. 
 */
 int main(int argc,char **argv){
-    int c, cantidadImagenes,largo, UMBRAL, UMBRAL_clasificacion, filas, i, j, verificador, cantidadHebras;
+    int c, cantidadImagenes,largo, UMBRAL, UMBRAL_clasificacion, filas, i, j, verificador, cantidadHebras, h;
     int bflag = 0;
-    unsigned char *data_imagen, *grisaseos, *binariosColor;
-    cabeceraInformacion binformacion;
-    cabeceraArchivo bcabecera;
-    bitmaptotal totalPixel;
-
     char *archivoEntrada, *archivoBinario; 
+    //cabeceraInformacion binformacion;
+    //cabeceraArchivo bcabecera;
+    //bitmaptotal totalPixel;
+    //parametrosHebra parametros;
+    parametrosHebra parametros;
 
     opterr = 0;
     while((c = getopt(argc,argv,"c:h:u:n:b")) != -1)
@@ -125,20 +126,43 @@ int main(int argc,char **argv){
     while(cantidadImagenes > 0 && UMBRAL > 0 && UMBRAL_clasificacion > 0 ){
         sprintf(archivoEntrada,"imagen_%d.bmp",cantidadImagenes);
         sprintf(archivoBinario,"binario_%d.bmp",cantidadImagenes);
-        data_imagen = leerImagenBMP(archivoEntrada, &binformacion, &bcabecera);
-        if(data_imagen != NULL){
-            if(binformacion.totalBit == 32){
-            grisaseos = transformarAGrises(&binformacion, data_imagen);
-            binariosColor = binarizarImagen(&binformacion, grisaseos, UMBRAL, &totalPixel);
-            crearImagen(&binformacion, &bcabecera, archivoBinario, binariosColor);
-            if(bflag == 1){
-                verificarNearlyBlack(&totalPixel, UMBRAL_clasificacion, cantidadImagenes);
+        parametros.archivoEntrada = archivoEntrada;
+        parametros.archivoBinario = archivoBinario;
+        parametros.UMBRAL = UMBRAL;
+        parametros.UMBRAL_clasificacion = UMBRAL_clasificacion;
+        parametros.nImagen = cantidadImagenes;
+
+
+        //data_imagen = leerImagenBMP(archivoEntrada, &binformacion, &bcabecera);
+        leerImagenBMP(&parametros);
+
+        /*
+        printf("leerImagen %d \n\n", binformacion.ancho);
+        printf("leerImagen %d \n\n", bcabecera.tamano);*/
+        
+        printf("parametros %d \n\n", parametros.cabInfo.ancho);
+        printf("parametros %d \n\n", parametros.cabArch.tamano);
+
+
+
+        if(parametros.data_imagen != NULL){
+            if(parametros.cabInfo.totalBit == 32){
+                //grisaseos = transformarAGrises(&binformacion, data_imagen);
+                transformarAGrises(&parametros);
+                //binariosColor = binarizarImagen(&binformacion, grisaseos, UMBRAL, &totalPixel);
+                binarizarImagen(&parametros);
+            //    crearImagen(&binformacion, &bcabecera, archivoBinario, binariosColor);
+                crearImagen(&parametros);
+                if(bflag == 1){
+              //    verificarNearlyBlack(&totalPixel, UMBRAL_clasificacion, cantidadImagenes);
+                    verificarNearlyBlack(&parametros);
                 }
             }
-            free(binariosColor);
-            free(data_imagen);
-            free(grisaseos);
+            free(parametros.binariosColor);
+            free(parametros.data_imagen);
+            free(parametros.grisaseos);
             cantidadImagenes -= 1;
+            parametros.nImagen -= 1;
         }    
     }
     
