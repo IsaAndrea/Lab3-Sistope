@@ -100,6 +100,7 @@ int main(int argc,char **argv){
         if (cantidadHebras > 0){  
 
             pthread_mutex_init(&parametros.candado,NULL);   
+            pthread_barrier_init(&parametros.barrera,NULL, cantidadHebras);
             pthread_t  tidHebra[cantidadHebras];
             pthread_t  tidHebraa[cantidadHebras];
             pthread_create(&tidHebra[h], NULL, (void*)leerImagenBMP, (void*)&parametros);
@@ -113,10 +114,11 @@ int main(int argc,char **argv){
                     for (h = 0; h < cantidadHebras; h++){
                         pthread_create(&tidHebra[h], NULL, (void*)transformarAGrises, (void*)&parametros);
                     }
-
+                    /*
                     for (h = 0; h < cantidadHebras; h++){
                         pthread_join(tidHebra[h], NULL);
-                    }
+                    }*/
+                    pthread_barrier_wait(&parametros.barrera);
                     parametros.hebras = 1;
                     parametros.posicionHebra = 0;
 
@@ -125,10 +127,11 @@ int main(int argc,char **argv){
                     for (h = 0; h < cantidadHebras; h++){
                         pthread_create(&tidHebra[h], NULL, (void*)binarizarImagen, (void*)&parametros);
                     }
-
+                    /*
                     for (h = 0; h < cantidadHebras; h++){
                         pthread_join(tidHebra[h], NULL);
-                    }
+                    }*/
+                    pthread_barrier_wait(&parametros.barrera);
                     parametros.hebras = 1;
                     parametros.posicionHebra = 0;
 
@@ -137,10 +140,11 @@ int main(int argc,char **argv){
                     for (h = 0; h < cantidadHebras; h++){
                         pthread_create(&tidHebra[h], NULL, (void*)verificarNearlyBlack, (void*)&parametros);
                     }
-
+                    /*
                     for (h = 0; h < cantidadHebras; h++){
                         pthread_join(tidHebra[h], NULL);
-                    }
+                    }*/
+                    pthread_barrier_wait(&parametros.barrera);
                     parametros.hebras = 1;
                     parametros.posicionHebra = 0;
 
@@ -149,6 +153,7 @@ int main(int argc,char **argv){
                         verificarNearlyBlack(&parametros);
                         escribirNearlyBlack(&parametros);
                     }
+                    pthread_barrier_destroy(&parametros.barrera);
                 }
 
             }  

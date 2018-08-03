@@ -47,6 +47,7 @@ typedef struct INFOIMAGEN{
     int 			totalHebras;
     int 			posicionHebra;
     pthread_mutex_t candado;
+    pthread_barrier_t barrera;
     int             hebras;
 }parametrosHebra;           
 
